@@ -1,6 +1,7 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { createUser } from '../services/userAPI';
+import Header from '../components/Header';
 
 class Login extends React.Component {
   constructor() {
@@ -44,6 +45,7 @@ class Login extends React.Component {
     const { disabEnvButton, nomeUsuario, carregando, redirect } = this.state;
     return (
       <div data-testid="page-login">
+        <Header />
         { redirect && (<Redirect to="/search" />) }
         {carregando ? (
           <span>Carregando...</span>
