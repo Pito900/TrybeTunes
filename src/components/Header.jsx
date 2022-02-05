@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { getUser } from '../services/userAPI';
 
 class Header extends React.Component {
@@ -12,14 +13,14 @@ class Header extends React.Component {
   }
 
   componentDidMount() {
-    this.logedUser();
+    this.logedUser(); // Após a página renderizar, o componentDidMount aplica a função logedUser.
   }
 
   logedUser = async () => {
     this.setState({ carregando: true });
-    const { name } = await getUser(); // O nomeUsuario ta vindo do getUser, por isso da para desconstruir.
+    const { name } = await getUser(); // O name ta vindo do getUser, por isso da para desconstruir (construimos o objeto de usuários no passo anterior).
     this.setState({
-      nomeUsuario: name, // o nome pego pela função é igual ao nome da chave do estado.
+      nomeUsuario: name,
       carregando: false,
     });
   };
@@ -33,6 +34,14 @@ class Header extends React.Component {
         ) : (
           <p data-testid="header-user-name">{ nomeUsuario }</p>
         )}
+        <nav>
+          <Link to="/search" data-testid="link-to-search"> Search</Link>
+          <p />
+          <Link to="/favorites" data-testid="link-to-favorites"> Favorites</Link>
+          <p />
+          <Link to="/profile" data-testid="link-to-profile"> Profile </Link>
+        </nav>
+
       </header>
     );
   }
