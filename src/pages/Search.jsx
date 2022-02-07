@@ -42,11 +42,11 @@ class Search extends React.Component {
     });
     const albuns = await searchAlbumsAPI(LookingFor);
     this.setState({
-      carregando: false,
-      LookingFor: '',
+      carregando: false, // Para ficar mostrando a tela de carregamento
+      LookingFor: '', // Aqui vem oq a pessoa está procurando
       disabSearchButton: true,
-      listAlbuns: albuns,
-      respostaAPI: true,
+      listAlbuns: albuns, // Aqui coloquei todos os albuns do artista/banda
+      respostaAPI: true, // Essa variável é para sempre sabermos que a requisição foi feita. Mesmo que volte falha.
     });
   }
 
@@ -63,7 +63,7 @@ class Search extends React.Component {
         Resultado de álbuns de:
         {' '}
         { nameArtist }
-      </h2>);
+      </h2>); // passei algumas horas para descobrir essa forma ...principalmente o espaço q deveria ter entre o nome e a mensagem
     return (
       <div data-testid="page-search">
         <Header />
@@ -94,7 +94,6 @@ class Search extends React.Component {
                 collectionId,
               }) => (
                 <section key={ collectionId }>
-                  <h3>{`Resultado de álbuns de: ${artistName}`}</h3>
                   <img
                     src={ artworkUrl100 }
                     alt={ collectionName }
