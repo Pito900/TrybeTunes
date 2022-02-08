@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import getMusics from '../services/musicsAPI';
 import Header from '../components/Header';
 import MusicCard from '../components/MusicCard';
+import { addSong, removeSong } from '../services/favoriteSongsAPI';
 
 class Album extends React.Component {
   constructor() {
@@ -12,6 +13,8 @@ class Album extends React.Component {
       collectionName: '',
       artworkUrl100: '',
       musicsList: [],
+      favoriteMusics: [],
+      carregando: false,
     };
   }
 
@@ -27,25 +30,60 @@ class Album extends React.Component {
     }); // O slice(1) irá retornar todos os elementos do array musicsAlbuns após o elemento 1.
   }
 
+  handleFavoriteSongs = async (trackId) => {
+    this.setState({ carregando: true });
+    const { musicsList, favoriteMusics } = this.state;
+    const isRemoving = favoriteMusics.some((id) => id === trackId);
+    const foundSong = musicsList.find((song) => song.trackId === trackId);
+    if (!isRemoving) {
+      await addSong(foundSong);
+      const newFavorites = [...favoriteMusics, trackId];
+      this.setState({ carregando: false, favoriteMusics: newFavorites });
+    } else {
+      await removeSong(foundSong);
+      const newFavorites = favoriteMusics.filter((id) => id !== trackId);
+      this.setState({ carregando: false, favoriteMusics: newFavorites });
+    }
+  }
+
   render() {
-    const { artistName, collectionName, artworkUrl100, musicsList } = this.state;
+    const {
+      artistName,
+      collectionName,
+      artworkUrl100,
+      musicsList,
+      favoriteMusics,
+      carregando,
+    } = this.state;
     return (
-      <div data-testid="page-album">
+      <main>
         <Header />
-        <section>
-          <p data-testid="artist-name">
-            { artistName }
-          </p>
-          <p data-testid="album-name">{collectionName}</p>
-          <img src={ artworkUrl100 } alt={ collectionName } />
-        </section>
-        {musicsList.map(({ trackName, previewUrl, trackId }) => ( // é importante olhar o retorno da solicitação para entender de onde esses parâmetros vieram
-          <section key={ trackId }>
-            <h4>{trackName}</h4>
-            <MusicCard url={ previewUrl } />
-          </section>
-        ))}
-      </div>
+        {carregando ? (
+          <p>Carregando...</p>
+        ) : (
+          <div data-testid="page-album">
+            <section>
+              <p data-testid="artist-name">
+                { artistName }
+              </p>
+              <p data-testid="album-name">{collectionName}</p>
+              <img src={ artworkUrl100 } alt={ collectionName } />
+            </section>
+            {musicsList.map(({ trackName, previewUrl, trackId }) => ( // é importante olhar o retorno da solicitação para entender de onde esses parâmetros vieram
+              <section key={ trackId }>
+                <h4>{trackName}</h4>
+                <MusicCard
+                  trackId={ trackId }
+                  trackName={ trackName }
+                  previewUrl={ previewUrl }
+                  onToFavoriteMusic={ () => this.handleFavoriteSongs(trackId) }
+                  checkedOrNot={ favoriteMusics.includes(trackId) }
+                />
+              </section>
+            ))}
+          </div>
+        )}
+      </main>
     );
   }
 }
