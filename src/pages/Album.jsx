@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import getMusics from '../services/musicsAPI';
 import Header from '../components/Header';
 import MusicCard from '../components/MusicCard';
-import { addSong, removeSong } from '../services/favoriteSongsAPI';
+import { addSong, removeSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
 
 class Album extends React.Component {
   constructor() {
@@ -21,6 +21,9 @@ class Album extends React.Component {
   async componentDidMount() { // criando a função que irá pegar as musicas do album
     const { id } = this.props; // peguei o id que passei como parâmetro pela URL.
     const musicsAlbum = await getMusics(id);
+    const getFavoriteSongsAPI = await getFavoriteSongs(); // Pegando todas as musicas favoritas pela a API
+    const recoveredFavoritesMusics = getFavoriteSongsAPI.map((music) => music.trackId); // Colocando os Id das musicas favoritas voltadas da API no vetor de musicas favoritas
+    this.setState({ favoriteMusics: recoveredFavoritesMusics });
     const { artistName, collectionName, artworkUrl100 } = musicsAlbum[0]; //  Aqui estou pegando o objeto, que é o primeiro elemento do array musicas do album
     this.setState({
       artistName,
@@ -30,17 +33,17 @@ class Album extends React.Component {
     }); // O slice(1) irá retornar todos os elementos do array musicsAlbuns após o elemento 1.
   }
 
-  handleFavoriteSongs = async (trackId) => {
+  handleFavoriteMusics = async (trackId) => {
     this.setState({ carregando: true });
     const { musicsList, favoriteMusics } = this.state;
     const isRemoving = favoriteMusics.some((id) => id === trackId);
-    const foundSong = musicsList.find((song) => song.trackId === trackId);
+    const encontraMusica = musicsList.find((song) => song.trackId === trackId);
     if (!isRemoving) {
-      await addSong(foundSong);
+      await addSong(encontraMusica);
       const newFavorites = [...favoriteMusics, trackId];
       this.setState({ carregando: false, favoriteMusics: newFavorites });
     } else {
-      await removeSong(foundSong);
+      await removeSong(encontraMusica);
       const newFavorites = favoriteMusics.filter((id) => id !== trackId);
       this.setState({ carregando: false, favoriteMusics: newFavorites });
     }
@@ -76,7 +79,7 @@ class Album extends React.Component {
                   trackId={ trackId }
                   trackName={ trackName }
                   previewUrl={ previewUrl }
-                  onToFavoriteMusic={ () => this.handleFavoriteSongs(trackId) }
+                  onToFavoriteMusic={ () => this.handleFavoriteMusics(trackId) }
                   checkedOrNot={ favoriteMusics.includes(trackId) }
                 />
               </section>
